@@ -1,0 +1,185 @@
+########################################################################
+# Valgrind suppressions for library "still reachable" allocations
+# Focus: hide readline/libtinfo internals so only your own leaks remain.
+########################################################################
+
+# --- Readline: generic reachable via malloc ---
+{
+  readline_reachable_malloc
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:malloc
+  ...
+  obj:*/libreadline.so.*
+  ...
+}
+
+# --- Readline: generic reachable via realloc ---
+{
+  readline_reachable_realloc
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:realloc
+  ...
+  obj:*/libreadline.so.*
+  ...
+}
+
+# --- Readline: generic reachable via calloc ---
+{
+  readline_reachable_calloc
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:calloc
+  ...
+  obj:*/libreadline.so.*
+  ...
+}
+
+# --- Readline: teardown path ---
+{
+  readline_internal_teardown
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:malloc
+  fun:xmalloc
+  fun:readline_internal_teardown
+  fun:readline
+  ...
+}
+
+# --- Readline: prompt expansion (rl_expand_prompt/rl_set_prompt) ---
+{
+  readline_prompt_expand
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:realloc
+  fun:xrealloc
+  fun:rl_expand_prompt
+  fun:rl_set_prompt
+  fun:readline
+  ...
+}
+
+# --- Readline: initialization / locale ---
+{
+  readline_init_locale
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:malloc
+  fun:xmalloc
+  fun:_rl_init_locale
+  fun:_rl_reset_locale
+  fun:rl_initialize
+  fun:readline
+  ...
+}
+
+# --- Readline: funmap/keymap structures ---
+{
+  readline_funmap_reachable
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:realloc
+  fun:xrealloc
+  fun:rl_add_funmap_entry
+  fun:rl_initialize_funmap
+  fun:rl_initialize
+  ...
+}
+
+{
+  readline_keymap_reachable
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:malloc
+  fun:xmalloc
+  fun:rl_make_bare_keymap
+  fun:rl_generic_bind
+  ...
+}
+
+# --- Readline: history additions ---
+{
+  readline_history_reachable
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:malloc
+  fun:xmalloc
+  fun:add_history
+  fun:readline
+  ...
+}
+
+# --- Readline: redisplay buffers ---
+{
+  readline_redisplay_reachable
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:malloc
+  fun:xrealloc
+  fun:rl_redisplay
+  fun:readline_internal_setup
+  fun:readline
+  ...
+}
+
+############################
+# ncurses/terminfo (libtinfo)
+############################
+
+# --- libtinfo: generic reachable via malloc ---
+{
+  tinfo_reachable_malloc
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:malloc
+  ...
+  obj:*/libtinfo.so.*
+  ...
+}
+
+# --- libtinfo: generic reachable via realloc ---
+{
+  tinfo_reachable_realloc
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:realloc
+  ...
+  obj:*/libtinfo.so.*
+  ...
+}
+
+# --- libtinfo: generic reachable via calloc ---
+{
+  tinfo_reachable_calloc
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:calloc
+  ...
+  obj:*/libtinfo.so.*
+  ...
+}
+
+# --- libtinfo: trim_sgr0/setupterm/tgetent paths ---
+{
+  tinfo_trim_sgr0
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  fun:malloc
+  fun:strdup
+  obj:*/libtinfo.so.*
+  fun:_nc_trim_sgr0
+  fun:tgetent_sp
+  ...
+}
+
+{
+  tinfo_setupterm
+  Memcheck:Leak
+  match-leak-kinds: reachable
+  obj:*/libtinfo.so.*
+  fun:_nc_setupterm
+  fun:tgetent_sp
+  ...
+}
