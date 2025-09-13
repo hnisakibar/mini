@@ -25,4 +25,3 @@ int wait_all(pid_t *pids, int n, pid_t last_pid)
     }
     return (last_status);
 }
-

@@ -1,11 +1,11 @@
 #include "minishell.h"
 
-int redir_out_append(const char *path)
+int redir_out_append(const char *path, int target_fd)
 {
 	int fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
 		return (perror(path), 1);
-	return dup_to(fd, STDOUT_FILENO);
+	return dup_to(fd, (target_fd >= 0 ? target_fd : STDOUT_FILENO));
 }
 
 int heredoc_pipe(int pfd[2])

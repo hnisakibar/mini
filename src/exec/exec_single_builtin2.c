@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int  is_meta_only(const char *s)
+int	is_meta_only(const char *s)
 {
     int has_meta;
 
@@ -17,9 +17,11 @@ int  is_meta_only(const char *s)
     return (has_meta);
 }
 
-int  has_sentinel(const char *s)
+int	has_sentinel(const char *s)
 {
-    const unsigned char *p = (const unsigned char *)s;
+    const unsigned char *p;
+
+    p = (const unsigned char *)s;
     while (p && *p)
     {
         if (*p == 0x01)
@@ -29,19 +31,22 @@ int  has_sentinel(const char *s)
     return (0);
 }
 
-int  has_dollar(const char *s)
+int	has_dollar(const char *s)
 {
-    return (s && strchr(s, '$') != NULL);
+    return (s && ft_strchr(s, '$') != NULL);
 }
 
-int  needs_reparse(char **orig, char **argv)
+int	needs_reparse(char **orig, char **argv)
 {
-    int i = 0;
+    int i;
+
+    i = 0;
     if (!argv || !orig)
         return (0);
     while (argv[i] && orig[i])
     {
-        if ((is_meta_only(argv[i]) || ft_strcmp(argv[i], "<<") == 0 || ft_strcmp(argv[i], ">>") == 0)
+        if ((is_meta_only(argv[i]) || ft_strcmp(argv[i], "<<") == 0
+            || ft_strcmp(argv[i], ">>") == 0)
             && !has_sentinel(orig[i]) && has_dollar(orig[i]))
             return (1);
         i++;
@@ -49,26 +54,49 @@ int  needs_reparse(char **orig, char **argv)
     return (0);
 }
 
-char *join_words(char **argv)
+static size_t	joined_len(char **argv)
 {
-    size_t len = 0; int i = 0; char *s; size_t off = 0;
+    size_t len;
+    int    i;
+
+    len = 0;
+    i = 0;
     while (argv[i])
-    { 
-        len += ft_strlen(argv[i]); 
-        if (argv[i+1]) 
-            len += 1; 
-        i++; 
+    {
+        len += ft_strlen(argv[i]);
+        if (argv[i + 1])
+            len += 1;
+        i++;
     }
-    s = (char *)safe_malloc(len + 1);
+    return (len);
+}
+
+static void	fill_joined(char **argv, char *s)
+{
+    size_t off;
+    int    i;
+
+    off = 0;
     i = 0;
     while (argv[i])
     {
         size_t n = ft_strlen(argv[i]);
         ft_memcpy(s + off, argv[i], n);
         off += n;
-        if (argv[i+1]) s[off++] = ' ';
+        if (argv[i + 1])
+            s[off++] = ' ';
         i++;
     }
     s[off] = '\0';
+}
+
+char	*join_words(char **argv)
+{
+    char   *s;
+    size_t len;
+
+    len = joined_len(argv);
+    s = (char *)safe_malloc(len + 1);
+    fill_joined(argv, s);
     return (s);
 }

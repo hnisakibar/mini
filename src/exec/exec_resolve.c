@@ -40,4 +40,3 @@ char    *resolve_cmd(char **argv, t_env *env)
         return (resolve_direct(argv[0], argv));
     return (resolve_via_path(argv[0], argv, env));
 }
-

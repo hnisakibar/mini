@@ -27,6 +27,7 @@ static int has_stdin_redir(const t_cmd *c)
     }
     return 0;
 }
+
 static int has_stdout_redir(const t_cmd *c)
 {
     const t_redir *r = c ? c->redirs : NULL;
@@ -46,7 +47,6 @@ void	child_exec(const t_cmd *c, t_ctx *ctx, char **envp, int prev_r, int fd[2])
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-	/* Apply pipe endpoints only if not overridden by redirections */
 	if (prev_r != -1 && !has_stdin_redir(c) && dup2(prev_r, STDIN_FILENO) == -1)
 		_exit(1);
 	if (fd && fd[1] != -1 && !has_stdout_redir(c) && dup2(fd[1], STDOUT_FILENO) == -1)
@@ -54,11 +54,10 @@ void	child_exec(const t_cmd *c, t_ctx *ctx, char **envp, int prev_r, int fd[2])
 	close_if(prev_r);
 	if (fd)
 		close_pair(fd[0], fd[1]);
-	rc = apply_redirs(c);
+    rc = apply_redirs(c, ctx->env, ctx->last_status);
 	if (rc != 0)
 		_exit(rc);
     expanded = expand_argv(c->argv, ctx->env, ctx->last_status);
     exec_inplace(c->argv, expanded, ctx, envp);
 	_exit(127);
 }
-

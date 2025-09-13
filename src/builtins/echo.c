@@ -13,18 +13,28 @@ static void	print_arg(const char *s)
 
 static int	is_n_flag(const char *s)
 {
-	int	i;
+    const unsigned char *p;
+    int  saw_n;
 
-	if (!s || s[0] != '-' || s[1] != 'n')
-		return (0);
-	i = 2;
-	while (s[i])
-	{
-		if (s[i] != 'n')
-			return (0);
-		i++;
-	}
-	return (1);
+    if (!s)
+        return (0);
+    p = (const unsigned char *)s;
+    while (*p == 0x01 || *p == 0x02)
+        p++;
+    if (*p != '-')
+        return (0);
+    p++;
+    saw_n = 0;
+    while (*p)
+    {
+        if (*p == 0x01 || *p == 0x02)
+        { p++; continue; }
+        if (*p != 'n')
+            return (0);
+        saw_n = 1;
+        p++;
+    }
+    return (saw_n);
 }
 
 int	msh_builtin_echo(char **argv)
@@ -50,4 +60,3 @@ int	msh_builtin_echo(char **argv)
         write(STDOUT_FILENO, "\n", 1);
     return (0);
 }
-

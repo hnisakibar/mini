@@ -11,6 +11,7 @@ int	parse_tokens(t_tokarr *ta, t_pipeline **out)
 	pl = xcalloc(1, sizeof(*pl));
 	cp.cur = NULL;
 	cp.last = NULL;
+	cp.pending_fd = -1;
 	i = 0;
 	while (i < ta->n)
 	{

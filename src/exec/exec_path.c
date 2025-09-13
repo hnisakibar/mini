@@ -30,7 +30,6 @@ char    *join3(const char *a, const char *b, const char *c)
     return (s);
 }
 
-// PATH dizgesinden bir segment kopyalanıp komutla birleştirilir
 static char *build_candidate(const char *seg_start, size_t seg_len, const char *cmd)
 {
 	char	*dir_dup;
@@ -49,7 +48,6 @@ static char *build_candidate(const char *seg_start, size_t seg_len, const char *
 	return (cand);
 }
 
-// PATH içerisindeki dizinleri tarayıp çalıştırılabilir komut yolu döner
 char *scan_path_dirs(char *paths, const char *cmd)
 {
 	const char	*seg_start = paths;
@@ -83,8 +81,10 @@ char    *find_in_path(const char *cmd, t_env *env)
     if (ft_strchr(cmd, '/'))
         return (is_executable(cmd) ? ft_strdup(cmd) : NULL);
     path = env_get(env, "PATH");
-    if (!path || !*path)
-        return (NULL);
+    if (!path)
+        path = "/usr/bin:/bin";
+    else if (*path == '\0')
+        return NULL;
     dup = ft_strdup(path);
     if (!dup)
         return (NULL);

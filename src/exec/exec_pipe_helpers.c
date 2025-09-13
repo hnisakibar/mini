@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <stdio.h>
 
-
 int	count_cmds(const t_pipeline *p)
 {
 	const t_cmd	*c;
@@ -31,8 +30,6 @@ int	is_single_builtin(const t_pipeline *p)
     return (1);
 }
 
-
-
 int	open_next_pipe(int need, int fd[2])
 {
 	fd[0] = -1;
@@ -56,6 +53,3 @@ int	after_fork_parent(int i, int n, int prev_r, int fd1, int fd0)
 	close_if(fd0);
 	return (-1);
 }
-
-
-

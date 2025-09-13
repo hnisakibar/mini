@@ -30,13 +30,14 @@ int has_dollar(const char *s)
 {
 	return (s && strchr(s, '$') != NULL);
 }
+
 int needs_reparse(char **orig, char **argv)
 {
     (void)orig;
     (void)argv;
-    /* Do not attempt to reinterpret expanded words as operators. */
     return (0);
 }
+
 size_t calc_join_len(char **argv)
 {
 	size_t len = 0;

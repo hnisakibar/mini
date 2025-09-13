@@ -107,4 +107,3 @@ void    env_normalize_startup(t_env **env)
     
     env_unset(env, "_");
 }
-

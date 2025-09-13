@@ -26,5 +26,3 @@ t_redir_type redir_kind(t_toktype t)
         return (R_OUT_APPEND);
     return (R_HEREDOC);
 }
-
-

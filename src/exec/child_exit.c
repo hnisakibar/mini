@@ -21,4 +21,3 @@ void    child_exit(int rc, char **argv)
     free_strv(argv);
     _exit(rc);
 }
-

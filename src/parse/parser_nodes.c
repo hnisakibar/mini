@@ -19,5 +19,3 @@ void    attach_cmd(t_pipeline *pl, t_cmdpair *cp)
     else
         cp->last->next = cp->cur;
 }
-
-

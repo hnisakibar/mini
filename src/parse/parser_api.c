@@ -1,7 +1,5 @@
 #include "minishell.h"
 
-
-
 int	parse_line(const char *line, t_pipeline **out)
 {
 	int		rc;
@@ -13,8 +11,6 @@ int	parse_line(const char *line, t_pipeline **out)
 	free_tokens(&ta);
 	return (rc);
 }
-
-
 
 static void	free_argv(char **argv)
 {

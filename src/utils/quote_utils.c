@@ -27,4 +27,3 @@ int	equals_ignoring_sentinels(const char *s, const char *lit)
         s++;
     return (*s == '\0' && *lit == '\0');
 }
-

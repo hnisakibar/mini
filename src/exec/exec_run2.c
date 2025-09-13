@@ -30,14 +30,15 @@ int has_dollar(const char *s)
 {
 	return (s && strchr(s, '$') != NULL);
 }
+
 int needs_reparse(char **orig, char **argv)
 {
     (void)orig;
     (void)argv;
-    /* Bash semantics: results of expansions do not create operators.
-       Never reparse expanded argv into meta tokens. */
+    
     return (0);
 }
+
 size_t calc_join_len(char **argv)
 {
 	size_t len = 0;

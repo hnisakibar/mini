@@ -28,9 +28,6 @@ char		*make_pair(const char *k, const char *v)
 	return (s);
 }
 
-
-
-// Ortam değişkeninden "KEY" ve "VALUE" ayrılarak t_env node’u oluşturulur
 t_env	*create_env_node(char *entry)
 {
 	char	*dup;
@@ -52,7 +49,6 @@ t_env	*create_env_node(char *entry)
 	return (node);
 }
 
-// Ortam değişkenlerini okuyup bağlı liste haline getirir
 t_env	*env_init(char **environ)
 {
 	t_env	*head = NULL;

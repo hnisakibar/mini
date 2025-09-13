@@ -45,6 +45,26 @@ static int run_builtin_in_parent(char **argv, t_ctx *ctx)
     return rc;
 }
 
+static void	save_stdio(int *sin, int *sout, int *serr)
+{
+    *sin = dup(STDIN_FILENO);
+    *sout = dup(STDOUT_FILENO);
+    *serr = dup(STDERR_FILENO);
+}
+
+static int	prepare_parent_redirs(t_pipeline *pl, t_ctx *ctx,
+                            int sin, int sout, int serr)
+{
+    ctx->pipeline = (t_pipeline *)pl;
+    if (apply_redirs(pl->head, ctx->env, ctx->last_status) != 0)
+    {
+        ctx->pipeline = NULL;
+        restore_io(sin, sout, serr);
+        return (1);
+    }
+    return (0);
+}
+
 int	handle_parent_exit(t_pipeline *pl, t_ctx *ctx, char **envp)
 {
 	int		sin; 
@@ -55,17 +75,10 @@ int	handle_parent_exit(t_pipeline *pl, t_ctx *ctx, char **envp)
 
 	if (!is_exit_single_cmd(pl))
 		return (0);
-	sin = dup(STDIN_FILENO);
-	sout = dup(STDOUT_FILENO);
-	serr = dup(STDERR_FILENO);
+	save_stdio(&sin, &sout, &serr);
     (void)envp;
-    ctx->pipeline = (t_pipeline *)pl;
-	if (apply_redirs(pl->head) != 0)
-	{
-			ctx->pipeline = NULL;
-		restore_io(sin, sout, serr);
-		return (1);
-	}
+    if (prepare_parent_redirs(pl, ctx, sin, sout, serr))
+        return (1);
     expanded = expand_argv(pl->head->argv, ctx->env, ctx->last_status);
     rc = run_builtin_in_parent(expanded, ctx);
     ctx->pipeline = NULL;

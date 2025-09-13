@@ -26,7 +26,6 @@ char	*ft_strjoin(const char *a, const char *b)
 	return (res);
 }
 
-
 void	*ft_memcpy(void *dst, const void *src, size_t n)
 {
 	size_t	i;
@@ -41,7 +40,6 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 	}
 	return (dst);
 }
-
 
 char	*ft_substr(const char *s, unsigned int start, size_t len)
 {
@@ -66,4 +64,3 @@ char	*ft_substr(const char *s, unsigned int start, size_t len)
 	res[i] = '\0';
 	return (res);
 }
-

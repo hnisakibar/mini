@@ -33,21 +33,17 @@ static const char *find_quote_end(const char *s, char q)
 static void append_single_quote(const char *s, const char *p,
                                 size_t *len, char **buf)
 {
-    
     const char *q;
     size_t      add;
 
     add = (size_t)(p - (s + 1));
     if (add == 0)
         return ;
-    
-    {
-        char *nb = (char *)safe_malloc(*len + (add * 2) + 1);
-        if (*buf && *len)
-            ft_memcpy(nb, *buf, *len);
-        free(*buf);
-        *buf = nb;
-    }
+    char *nb = (char *)safe_malloc(*len + (add * 2) + 1);
+    if (*buf && *len)
+        ft_memcpy(nb, *buf, *len);
+    free(*buf);
+    *buf = nb;
     q = s + 1;
     while (q < p)
     {
@@ -60,24 +56,19 @@ static void append_single_quote(const char *s, const char *p,
 static void append_double_quote(const char *s, const char *p,
                                 size_t *len, char **buf)
 {
-    /* Insert a boundary marker (0x02) before the double-quoted chunk
-       so that variable-name scanning (e.g. $T"o") does not consume
-       characters coming from the quoted segment. Unlike 0x01 (single-quote
-       sentinel), this 0x02 marker should NOT force literal copying; the
-       expander will just skip it and continue, allowing $ inside double
-       quotes to still expand. */
-    size_t add = (size_t)(p - (s + 1));
-    {
-        char *nb = (char *)safe_malloc(*len + add + 1 /*marker*/ + 1);
-        if (*buf && *len)
-            ft_memcpy(nb, *buf, *len);
-        nb[*len] = '\2'; /* boundary marker */
-        if (add)
-            ft_memcpy(nb + *len + 1, s + 1, add);
-        free(*buf);
-        *buf = nb;
-    }
-    *len += 1 + add;
+    size_t add;
+
+    add = (size_t)(p - (s + 1));
+    char *nb = (char *)safe_malloc(*len + add + 2 + 1);
+    if (*buf && *len)
+        ft_memcpy(nb, *buf, *len);
+    nb[*len] = '\2';
+    if (add)
+        ft_memcpy(nb + *len + 1, s + 1, add);
+    nb[*len + 1 + add] = '\2';
+    free(*buf);
+    *buf = nb;
+    *len += 2 + add;
     (*buf)[*len] = '\0';
 }
 
@@ -94,4 +85,3 @@ const char *read_quoted(const char *s, char q, size_t *len, char **buf)
         append_double_quote(s, p, len, buf);
     return (p + 1);
 }
-

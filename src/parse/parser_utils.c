@@ -1,6 +1,5 @@
 #include "minishell.h"
 
-
 void	*xcalloc(size_t n, size_t sz)
 {
 	void	*p;
@@ -9,7 +8,6 @@ void	*xcalloc(size_t n, size_t sz)
     ft_memset(p, 0, n * sz);
 	return (p);
 }
-
 
 char	*strndup2(const char *s, size_t n)
 {
@@ -30,7 +28,6 @@ char	*strdup2(const char *s)
 		len++;
 	return (strndup2(s, len));
 }
-
 
 void	argv_push(char ***pargv, const char *w)
 {
@@ -55,8 +52,7 @@ void	argv_push(char ***pargv, const char *w)
 	*pargv = nv;
 }
 
-
-void	redir_push(t_redir **lst, t_redir_type type, const char *arg)
+void	redir_push(t_redir **lst, t_redir_type type, int fd_from, const char *arg, int quoted)
 {
 	t_redir	*r;
 	t_redir	*p;
@@ -64,6 +60,8 @@ void	redir_push(t_redir **lst, t_redir_type type, const char *arg)
 	r = xcalloc(1, sizeof(*r));
 	r->type = type;
 	r->arg = strdup2(arg);
+    r->fd_from = fd_from;
+    r->quoted = quoted;
 	if (!*lst)
 	{
 		*lst = r;
@@ -74,4 +72,3 @@ void	redir_push(t_redir **lst, t_redir_type type, const char *arg)
 		p = p->next;
 	p->next = r;
 }
-

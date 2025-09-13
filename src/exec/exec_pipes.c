@@ -3,7 +3,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-// Çocuğun fork sonrası işlemlerini yapar
 static int handle_fork_result(pid_t pid, int i, int n,
 	int prev_r, int fd[2], pid_t *last_pid)
 {
@@ -14,7 +13,6 @@ static int handle_fork_result(pid_t pid, int i, int n,
 	return after_fork_parent(i, n, prev_r, fd[1], fd[0]);
 }
 
-// Tüm komutları fork edip boru hattı oluşturur
 static int spawn_all_children(const t_pipeline *p, t_ctx *ctx, char **envp,
 	pid_t *pids, int n, pid_t *last_pid)
 {
@@ -39,19 +37,18 @@ static int spawn_all_children(const t_pipeline *p, t_ctx *ctx, char **envp,
 	return (0);
 }
 
-// Tüm çocukların bitmesini bekler
 static int wait_and_finish(pid_t *pids, int n, pid_t last_pid)
 {
 	return wait_all(pids, n, last_pid);
 }
 
-// Tek yerleşik komut çalıştırılır
 static int run_if_single_builtin(const t_pipeline *p, t_ctx *ctx, char **envp)
 {
 	int rc = run_single_builtin(p->head, ctx, envp);
 	ctx->pipeline = NULL;
 	return rc;
 }
+
 int	execute_pipeline(const t_pipeline *p, t_ctx *ctx, char **envp)
 {
 	int		n;

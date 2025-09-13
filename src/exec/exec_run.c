@@ -1,5 +1,6 @@
 #include "minishell.h"
 #include "exec_int.h"
+
 int run_if_builtin(char **argv, t_ctx *ctx)
 {
     if (!argv || !argv[0])
@@ -7,44 +8,65 @@ int run_if_builtin(char **argv, t_ctx *ctx)
     if (!is_builtin(argv[0]))
         return (-1);
     signal(SIGPIPE, SIG_IGN);
-    return run_builtin(argv, ctx);
+    return (run_builtin(argv, ctx));
 }
+
 static int count_environ(char **envp)
 {
-    int n = 0;
-    if (!envp) return 0;
-    while (envp[n]) n++;
-    return n;
+    int n;
+
+    n = 0;
+    if (!envp)
+        return (0);
+    while (envp[n])
+        n++;
+    return (n);
 }
+
 static int find_underscore(char **envp)
 {
-    int i = 0;
+    int i;
+
+    i = 0;
     while (envp && envp[i])
     {
         if (strncmp(envp[i], "_=", 2) == 0)
-            return i;
+            return (i);
         i++;
     }
-    return -1;
+    return (-1);
 }
+
 static char **make_child_env_with_uscore(t_ctx *ctx, const char *underscore)
 {
-    char **base = env_to_environ(ctx->env);
-    int n = count_environ(base);
-    int idx = find_underscore(base);
+    char    **base;
+    char    **arr;
+    int       n;
+    int       idx;
+    int       i;
+
+    base = env_to_environ(ctx->env);
+    n = count_environ(base);
+    idx = find_underscore(base);
     if (idx >= 0)
     {
         free(base[idx]);
         base[idx] = make_pair("_", underscore ? underscore : "");
-        return base;
+        return (base);
     }
-    char **arr = (char **)safe_malloc(sizeof(char *) * (n + 2));
-    for (int i = 0; i < n; i++) arr[i] = base[i];
+    arr = (char **)safe_malloc(sizeof(char *) * (n + 2));
+    i = 0;
+    while (i < n)
+    {
+        arr[i] = base[i];
+        i++;
+    }
     arr[n] = make_pair("_", underscore ? underscore : "");
     arr[n + 1] = NULL;
     free(base);
-    return arr;
+    return (arr);
 }
+
 static int should_fallback(int err, const char *cmd_path)
 {
 	if (err == ENOEXEC)
@@ -58,6 +80,7 @@ static int should_fallback(int err, const char *cmd_path)
 	}
 	return (0);
 }
+
 static void exec_with_sh(char *cmd_path, char **child_env)
 {
 	char *sh_argv[3];
@@ -66,22 +89,41 @@ static void exec_with_sh(char *cmd_path, char **child_env)
 	sh_argv[2] = NULL;
 	execve("/bin/sh", sh_argv, child_env);
 }
+
+static void cmd_not_found_exit(char **argv, char **child_env)
+{
+    char *used;
+
+    used = ft_strdup(argv && argv[0] ? argv[0] : "");
+    report_and_exit(ENOENT, used, argv, child_env);
+}
+
+static void report_exec_error(int saved, char *cmd_path,
+                              char **argv, char **child_env)
+{
+    char *used;
+
+    used = cmd_path ? cmd_path : ft_strdup(argv[0]);
+    report_and_exit(saved, used, argv, child_env);
+}
+
 void try_exec_or_fallback(char *cmd_path, char **argv, char **child_env)
 {
 	int saved;
 
-	execve(cmd_path, argv, child_env);
+    if (!cmd_path)
+        return (cmd_not_found_exit(argv, child_env));
+
+    execve(cmd_path, argv, child_env);
 	saved = errno;
 	if (should_fallback(saved, cmd_path))
 	{
 		exec_with_sh(cmd_path, child_env);
 		saved = errno;
 	}
-	{
-		char *used = cmd_path ? cmd_path : ft_strdup(argv[0]);
-		report_and_exit(saved, used, argv, child_env);
-	}
+    report_exec_error(saved, cmd_path, argv, child_env);
 }
+
 static void handle_empty_command(char *cmd)
 {
 	if (!cmd || cmd[0] == '\0')
@@ -90,11 +132,16 @@ static void handle_empty_command(char *cmd)
 		_exit(127);
 	}
 }
+
 static void reparse_and_run(char **argv, t_ctx *ctx)
 {
-    char *re_line = join_words(argv);
-    t_pipeline *pl = NULL;
-    int rc = parse_line(re_line, &pl);
+    char        *re_line;
+    t_pipeline  *pl;
+    int          rc;
+
+    re_line = join_words(argv);
+    pl = NULL;
+    rc = parse_line(re_line, &pl);
     free(re_line);
     if (rc != 0)
     {
@@ -106,10 +153,12 @@ static void reparse_and_run(char **argv, t_ctx *ctx)
     free_pipeline(pl);
     child_exit(rc, argv);
 }
+
 int exec_inplace(char **orig_argv, char **argv, t_ctx *ctx, char **envp_unused)
 {
-    char *cmd_path, **child_env;
-    int rc;
+    char *cmd_path;
+    char **child_env;
+    int   rc;
 
 	(void)envp_unused;
 	if (!argv || !argv[0])

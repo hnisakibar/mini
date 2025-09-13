@@ -8,6 +8,7 @@ char *grow_buf(char *ptr, size_t old_len, size_t new_cap)
 	free(ptr);
 	return new_buf;
 }
+
 size_t safe_cap(size_t used, size_t add)
 {
 	if (used > (size_t)-1 - (add + 1))
@@ -17,6 +18,7 @@ size_t safe_cap(size_t used, size_t add)
 	}
 	return used + add + 1;
 }
+
 void app_str(char **dst, size_t *len, const char *src, size_t n)
 {
 	size_t cap = safe_cap(*len, n);
@@ -33,6 +35,7 @@ void app_c(char **dst, size_t *len, char c)
 	(*dst)[(*len)++] = c;
 	(*dst)[*len] = '\0';
 }
+
 void push_status(char **out, size_t *len, int last_status)
 {
 	char buf[32];
@@ -40,7 +43,3 @@ void push_status(char **out, size_t *len, int last_status)
 	if (n > 0)
 		app_str(out, len, buf, (size_t)n);
 }
-
-
-
-

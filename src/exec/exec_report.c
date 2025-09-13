@@ -22,4 +22,3 @@ void    report_and_exit(int saved, const char *used,
     free((char *)used);
     child_exit(saved == ENOENT ? 127 : 126, argv);
 }
-

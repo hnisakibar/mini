@@ -1,24 +1,5 @@
 #include "minishell.h"
 
-static void	set_pair(t_env **env, const char *k, size_t klen, const char *v)
-{
-	char	*key;
-	size_t	i;
-
-	key = (char *)malloc(klen + 1);
-	if (!key)
-		return ;
-	i = 0;
-	while (i < klen)
-	{
-		key[i] = k[i];
-		i++;
-	}
-	key[klen] = '\0';
-	env_set(env, key, v, 1);
-	free(key);
-}
-
 static int	export_no_args(t_env *env)
 {
     size_t          n;
@@ -38,27 +19,34 @@ static int	export_no_args(t_env *env)
 
 static int	handle_export_arg(const char *arg, t_env **env)
 {
-    const char  *eq;
-    size_t       klen;
+    const char	*eq;
+    size_t		klen;
+    int			append;
 
-    eq = strchr(arg, '=');
+    eq = ft_strchr(arg, '=');
+    append = 0;
     klen = (eq ? (size_t)(eq - arg) : ft_strlen(arg));
+    if (eq && klen > 0 && arg[klen - 1] == '+')
+    {
+        append = 1;
+        klen -= 1;
+    }
     if (!valid_key(arg, klen))
     {
-        ft_dprintf1(STDERR_FILENO, "minishell: export: `%s': not a valid identifier\n", arg);
+        ft_dprintf1(STDERR_FILENO,
+            "minishell: export: `%s': not a valid identifier\n", arg);
         return (1);
     }
     if (eq)
-        set_pair(env, arg, klen, eq + 1);
-    else
-        env_set(env, arg, NULL, 0);
+        return export_assign(env, arg, klen, append, eq + 1);
+    env_set(env, arg, NULL, 0);
     return (0);
 }
 
 int	msh_builtin_export(char **argv, t_env **env)
 {
-    int i;
-    int had_bad;
+    int	i;
+    int	had_bad;
 
     if (!argv[1])
         return (export_no_args(*env));
@@ -66,14 +54,13 @@ int	msh_builtin_export(char **argv, t_env **env)
     i = 1;
     while (argv[i])
     {
-        if (argv[i][0] == '-' && argv[i][1] && argv[i][1] != '-')
+        if (argv[i][0] == '-')
         {
-            char opt = argv[i][1];
-            ft_putstr_fd("minishell: export: -", STDERR_FILENO);
-            write(STDERR_FILENO, &opt, 1);
-            ft_putstr_fd(": invalid option\n", STDERR_FILENO);
-            ft_putstr_fd("export: usage: export [-fn] [name[=value] ...] or export -p\n", STDERR_FILENO);
-            return (2);
+            int r = export_handle_option(argv[i]);
+            if (r == 2)
+                return (2);
+            if (r == 1)
+            { i++; continue; }
         }
         if (handle_export_arg(argv[i], env))
             had_bad = 1;

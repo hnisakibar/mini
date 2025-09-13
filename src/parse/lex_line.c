@@ -52,4 +52,3 @@ void    free_tokens(t_tokarr *ta)
     ta->n = 0;
     ta->cap = 0;
 }
-
