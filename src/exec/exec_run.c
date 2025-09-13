@@ -7,6 +7,10 @@ int run_if_builtin(char **argv, t_ctx *ctx)
         return (0);
     if (!is_builtin(argv[0]))
         return (-1);
+    /* Ensure builtins running in child processes get the default
+       SIGPIPE behavior so a write to a closed pipe terminates the
+       process (and produces a Broken pipe message from the shell
+       when appropriate). */
     signal(SIGPIPE, SIG_IGN);
     return (run_builtin(argv, ctx));
 }
