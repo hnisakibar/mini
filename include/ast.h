@@ -29,6 +29,8 @@ typedef struct s_redir
 {
     t_redir_type    type;
     char            *arg;
+    int              fd_from; /* -1 for default (stdin/stdout), otherwise explicit fd */
+    int              quoted;  /* for heredoc delimiters: was delimiter quoted? */
     struct s_redir  *next;
 }   t_redir;
 
@@ -60,6 +62,8 @@ typedef struct s_tok
 {
     t_toktype   type;
     char        *val;   /* only for T_WORD */
+    int          glued_right; /* 1 if immediately followed by an operator w/o space */
+    int          had_quote;   /* 1 if any quotes contributed to this word */
 }   t_tok;
 
 typedef struct s_tokarr

@@ -16,7 +16,6 @@
 # include <stddef.h>
 # include "ast.h"
 
-void        *lxr_xrealloc(void *ptr, size_t n);
 void         tok_push(t_tokarr *ta, t_tok t);
 const char  *emit_operator(const char *s, t_tokarr *ta);
 const char  *read_quoted(const char *s, char q, size_t *len, char **buf);

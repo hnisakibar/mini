@@ -21,6 +21,7 @@ typedef struct s_cmdpair
 {
     t_cmd   *cur;
     t_cmd   *last;
+    int      pending_fd; /* numeric fd prefix before a redirection, or -1 */
 }   t_cmdpair;
 
 /* token helpers */
@@ -33,7 +34,7 @@ void        attach_cmd(t_pipeline *pl, t_cmdpair *cp);
 
 /* actions */
 int         ensure_pipe_ok(t_cmd *cur);
-int         handle_redir(t_tokarr *ta, size_t *i, t_cmd *cur);
+int         handle_redir(t_tokarr *ta, size_t *i, t_cmd *cur, int *pending_fd);
 int         handle_token(t_tokarr *ta, size_t *i,
                         t_pipeline *pl, t_cmdpair *cp);
 

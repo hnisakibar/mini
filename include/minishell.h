@@ -42,6 +42,9 @@ typedef struct s_ctx {
     pid_t *pids;
     int    pids_n;
     t_pipeline *pipeline;
+    int    saved_stdin;
+    int    saved_stdout;
+    int    saved_stderr;
 } t_ctx;
 
 /* ---- child helpers ---- */
@@ -63,19 +66,19 @@ int   open_next_pipe(int need, int fd[2]);
 int   after_fork_parent(int i, int n, int prev_r, int fd1, int fd0);
 int   wait_all(pid_t *pids, int n, pid_t last_pid);
 /* redirections API */
-int   apply_redirs(const t_cmd *c);
+int   apply_redirs(const t_cmd *c, t_env *env, int last_status);
 int   open_tty_rw(int *rfd, int *wfd);
 void  hd_prompt_fd(int tty_wfd);
 int   dup_to(int fd, int target);
-int   redir_in(const char *path);
-int   redir_out_trunc(const char *path);
-int   redir_out_append(const char *path);
+int   redir_in(const char *path, int target_fd);
+int   redir_out_trunc(const char *path, int target_fd);
+int   redir_out_append(const char *path, int target_fd);
 int   heredoc_pipe(int pfd[2]);
 void  write_line(int wfd, const char *s);
 char *read_line_dynamic_fd(int fd);
 void  hd_sigint_handler(int sig);
-int   heredoc_fill(int wfd, const char *delim);
-int   do_heredoc(const char *delim, int quoted);
+int   heredoc_fill(int wfd, const char *delim, t_env *env, int last_status, int quoted);
+int   do_heredoc(const char *delim, int quoted, t_env *env, int last_status);
 char *strip_sentinels(const char *s);
 int   exec_inplace(char **orig_argv, char **argv, t_ctx *ctx, char **envp);
 
@@ -106,6 +109,10 @@ void          env_collect(const t_env *e, const t_env **arr);
 void          env_sort(const t_env **a, size_t n);
 void          env_print_decl(const t_env **a, size_t n);
 int           valid_key(const char *s, size_t len);
+void          export_set_pair(t_env **env, const char *k, size_t klen, const char *v);
+int           export_assign(t_env **env, const char *arg, size_t klen, int append,
+                 const char *rhs);
+int           export_handle_option(const char *opt);
 
 /* ---- core ---- */
 void  prompt_signals(void);
@@ -114,6 +121,8 @@ int   is_interactive(void);
 int   handle_parent_exit(t_pipeline *pl, t_ctx *ctx, char **envp);
 int   run_or_chain(char *line, t_ctx *ctx, char **envp);
 int   find_unquoted_or(const char *s);
+int   find_unquoted_semi(const char *s);
+int   run_seq_chain(char *line, t_ctx *ctx, char **envp);
 int   run_line(const char *line, t_ctx *ctx, char **envp);
 void  free_all(t_ctx *ctx);
 void  free_env(t_env *env);
@@ -155,16 +164,18 @@ char   *ft_strchr(const char *s, int c);
 char   *ft_substr(const char *s, unsigned int start, size_t len);
 int     ft_itoa_buf(int n, char *buf, size_t size);
 int     ft_ltoa_buf(long n, char *buf, size_t size);
+int     ft_atoi(const char *s);
 int     argv_len(char **argv);
 int     ft_isalpha(int c);
 int     ft_isalnum(int c);
 int     ft_isdigit(int c);
+int     ft_isspace(int c);
 int     ft_strcmp(const char *a, const char *b);
 void    ft_putstr_fd(const char *s, int fd);
 void    ft_dprintf1(int fd, const char *fmt_s, const char *arg);
 void   *xcalloc(size_t n, size_t sz);
 void    argv_push(char ***pargv, const char *w);
-void    redir_push(t_redir **lst, t_redir_type type, const char *arg);
+void    redir_push(t_redir **lst, t_redir_type type, int fd_from, const char *arg, int quoted);
 const char *skip_quote_sentinel(const char *s);
 int     equals_ignoring_sentinels(const char *s, const char *lit);
 
