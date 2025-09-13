@@ -130,6 +130,5 @@ static char	*read_one_line_nonint_with_quotes(void)
 	line = read_noninteractive_line();
     if (!line)
         return NULL;
-	write(STDOUT_FILENO, "minishell$ ", 12);
     return read_more_if_quotes_open(line);
 }
